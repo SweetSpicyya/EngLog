@@ -1,6 +1,6 @@
 import type { DiaryEntry } from '../types';
 
-const FOLDER_NAME = 'daylog';
+const FOLDER_NAME = 'EngLog';
 let folderId: string | null = null;
 
 async function getOrCreateFolder(token: string): Promise<string> {

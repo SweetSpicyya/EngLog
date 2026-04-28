@@ -23,9 +23,9 @@ export function Setup({ onComplete }: SetupProps) {
     if (!provider) return alert('Select an AI provider');
     if (!apiKey.trim()) return alert('Enter your API key');
     if (!clientId.trim()) return alert('Enter your Google OAuth Client ID');
-    localStorage.setItem('daylog_provider', provider);
-    localStorage.setItem('daylog_key_' + provider, apiKey);
-    localStorage.setItem('daylog_client_id', clientId);
+    localStorage.setItem('englog_provider', provider);
+    localStorage.setItem('englog_key_' + provider, apiKey);
+    localStorage.setItem('englog_client_id', clientId);
     onComplete({ provider, apiKey, clientId });
   }
 
@@ -34,8 +34,8 @@ export function Setup({ onComplete }: SetupProps) {
   return (
     <div className="setup-screen">
       <div className="setup-card">
-        <div className="setup-logo">daylog</div>
-        <div className="setup-sub">// your daily english diary</div>
+        <div className="setup-logo">EngLog</div>
+        <div className="setup-sub">your daily english diary</div>
 
         <div className="setup-group">
           <div className="setup-group-title">AI Provider</div>

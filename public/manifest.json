@@ -1,6 +1,6 @@
 {
-  "name": "daylog",
-  "short_name": "daylog",
+  "name": "EngLog",
+  "short_name": "EngLog",
   "description": "Your daily English diary with AI correction",
   "start_url": "/",
   "display": "standalone",

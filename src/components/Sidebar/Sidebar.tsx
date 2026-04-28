@@ -15,7 +15,7 @@ export function Sidebar({ entries, currentDate, cfg, onNewEntry, onSelectEntry, 
   const sorted = Object.keys(entries).sort().reverse();
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo">daylog</div>
+      <div className="sidebar-logo">EngLog</div>
       <button className="new-btn" onClick={onNewEntry}>+ new entry</button>
       <div className="sidebar-label">entries</div>
       <div className="entries-list">

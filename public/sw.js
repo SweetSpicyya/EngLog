@@ -1,4 +1,4 @@
-const CACHE = 'daylog-v1';
+const CACHE = 'EngLog-v1';
 const ASSETS = [
   '/',
   '/index.html',

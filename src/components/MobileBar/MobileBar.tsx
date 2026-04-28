@@ -9,7 +9,7 @@ interface MobileBarProps {
 export function MobileBar({ providerLabel, onNewEntry, onSettings }: MobileBarProps) {
   return (
     <div className="mobile-bar">
-      <span className="mobile-logo">daylog</span>
+      <span className="mobile-logo">EngLog</span>
       <div className="mobile-bar-actions">
         <span className="provider-pill">{providerLabel}</span>
         <button className="mobile-icon-btn" onClick={onNewEntry} title="new entry">＋</button>

@@ -10,10 +10,10 @@ import { todayKey } from './utils/date';
 import './App.css';
 
 function loadConfig(): Config | null {
-  const provider = localStorage.getItem('daylog_provider') as AIProvider | null;
-  const clientId = localStorage.getItem('daylog_client_id');
+  const provider = localStorage.getItem('englog_provider') as AIProvider | null;
+  const clientId = localStorage.getItem('englog_client_id');
   if (!provider || !clientId) return null;
-  const apiKey = localStorage.getItem('daylog_key_' + provider);
+  const apiKey = localStorage.getItem('englog_key_' + provider);
   if (!apiKey) return null;
   return { provider, apiKey, clientId };
 }
@@ -46,9 +46,9 @@ export default function App() {
   }
 
   function saveSettings() {
-    localStorage.setItem('daylog_provider', sProvider);
-    localStorage.setItem('daylog_key_' + sProvider, sApiKey);
-    localStorage.setItem('daylog_client_id', sClientId);
+    localStorage.setItem('englog_provider', sProvider);
+    localStorage.setItem('englog_key_' + sProvider, sApiKey);
+    localStorage.setItem('englog_client_id', sClientId);
     setCfg({ provider: sProvider, apiKey: sApiKey, clientId: sClientId });
     setShowSettings(false);
   }
