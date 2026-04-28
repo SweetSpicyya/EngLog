@@ -61,7 +61,6 @@ export default function App() {
   return (
     <div className="app">
       <MobileBar
-        providerLabel={PROVIDERS[cfg.provider].label}
         onNewEntry={() => setCurrentDate(todayKey())}
         onSettings={openSettings}
         onMenuToggle={() => setSidebarOpen(prev => !prev)}
