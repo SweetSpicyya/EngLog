@@ -47,7 +47,7 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) {
           const raw = e.results[i][0].transcript;
-          rawFinalRef.current += raw + ' ';
+          rawFinalRef.current += raw + ' ';  // 전체 세션 누적
 
           let str = raw.charAt(0).toUpperCase() + raw.slice(1);
           str = str.endsWith('?') || str.endsWith('!') ? str : str + '. ';
@@ -65,9 +65,8 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
     };
 
     rec.onend = () => {
-      // 수동 stop이 아니면 자동 재시작 (모바일 대응)
       if (isRecordingRef.current && recognitionRef.current === rec) {
-        baseSnapshotRef.current = getBase();
+        baseSnapshotRef.current = baseSnapshotRef.current + committedRef.current;
         committedRef.current = '';
         try {
           rec.start();
@@ -99,7 +98,7 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
   }, [onStop]);
 
   const toggle = useCallback((target: 'body' | 'reBody' | null) => {
-    return isRecording ? stop() : start(target);
+    isRecording ? stop() : start(target);
   }, [isRecording, start, stop]);
 
   return { isRecording, recordingTarget, toggle };

@@ -1,11 +1,11 @@
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CorrectionPanel } from '../CorrectionPanel/CorrectionPanel';
 import { useVoice } from '../../hooks/useVoice';
 import { useAI } from '../../hooks/useAI';
 import type { Config } from '../../types';
 import { PROVIDERS } from '../../types';
-import {formatDate, yesterdayKey} from '../../utils/date';
-import type{ CorrectionResult } from '../../types';
+import { formatDate, yesterdayKey } from '../../utils/date';
+import type { CorrectionResult } from '../../types';
 import './Editor.css';
 
 interface EditorProps {
@@ -21,7 +21,7 @@ interface EditorProps {
 export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, initialFixedBody, initialAdvancedBody, onSave }: EditorProps) {
   const [selectedDate, setSelectedDate] = useState(formatDate(currentDate));
   const [title, setTitle] = useState(initialTitle);
-  const [body, setBody]   = useState(initialOriginalBody);
+  const [body, setBody] = useState(initialOriginalBody);
   const [correction, setCorrection] = useState(initialFixedBody);
   const [reBody, setReBody] = useState(initialAdvancedBody);
   const [saving, setSaving] = useState(false);
@@ -32,23 +32,14 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
   const ai = useAI(cfg.provider, cfg.apiKey);
 
   useEffect(() => {
-    if (ai.result) {
-      setCorrection(ai.result);
-    }
+    if (ai.result) setCorrection(ai.result);
   }, [ai.result]);
 
-
   const formatted = (fullText: string) => {
-    return fullText.
-    replace(/([.!?,])(\S)/g, '$1 $2')
+    return fullText
+        .replace(/([.!?,])(\S)/g, '$1 $2')
         .replace(/([.!?,])\s{2,}/g, '$1 ');
-  }
-
-  const join = (base: string, corrected: string) => {
-    if (!base) return formatted(corrected);
-    return formatted(base.trimEnd() + ' ' + corrected);
   };
-
 
   const voice = useVoice({
     onTranscript: (text) => {
@@ -61,8 +52,9 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
     },
     onStop: (finalText, target, base) => {
       ai.punctuate(finalText, target, (corrected) => {
-        if (target === 'body') setBody(join(base, corrected));
-        else setReBody(join(base, corrected));
+        const result = base ? base.trimEnd() + ' ' + corrected : corrected;
+        if (target === 'body') setBody(formatted(result));
+        else setReBody(formatted(result));
       });
     }
   });
@@ -70,10 +62,9 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
   async function handleSave() {
     if (!body.trim() || !reBody.trim() || !ai.result || !title) {
       setSaving(false);
-      setSaveMsg('Save failed! You can save after completing all steps or put the title.')
+      setSaveMsg('Save failed! You can save after completing all steps or put the title.');
       return;
     }
-
     setSaving(true);
     setSaveMsg('Saving...');
     try {
@@ -89,14 +80,8 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
 
   const getVoiceBtnContent = (target: 'body' | 'reBody') => {
     const isCurrentTarget = voice.recordingTarget === target;
-
-    if (isCurrentTarget && ai.punctuating) {
-      return <><span>✎</span> Punctuating...</>;
-    }
-    if (isCurrentTarget && voice.isRecording) {
-      return <><span className="rec-dot"/> recording</>;
-    }
-
+    if (isCurrentTarget && ai.punctuating) return <><span>✎</span> Punctuating...</>;
+    if (isCurrentTarget && voice.isRecording) return <><span className="rec-dot" /> recording</>;
     return target === 'body'
         ? <><span>◉</span> Record Log</>
         : <><span>↻</span> Re-record Log</>;
@@ -104,55 +89,50 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
 
   return (
       <main className="editor">
-        <div className={"date-container"}>
-          <button className={"date-change-btn"} onClick={() => setSelectedDate(formatDate(yesterdayKey()))}> ᐊ</button>
+        <div className="date-container">
+          <button className="date-change-btn" onClick={() => setSelectedDate(formatDate(yesterdayKey()))}> ᐊ</button>
           <div className="editor-date-label">{selectedDate}</div>
-          <button className={"date-change-btn"} onClick={() => setSelectedDate(formatDate(currentDate))}>↻</button>
+          <button className="date-change-btn" onClick={() => setSelectedDate(formatDate(currentDate))}>↻</button>
         </div>
+
         <input className="title-input" type="text" placeholder="Today's title..." value={title}
-               onChange={e => setTitle(e.target.value)}/>
+               onChange={e => setTitle(e.target.value)} />
 
         <div className="toolbar">
           <div className="toolbar-step">
             <span className={`step-label ${body ? 'done' : ''}`}>step 1</span>
-            <button className={`tbtn ${voice.recordingTarget === 'body' ? 'recording' : ''}`} onClick={() => {
-              targetRef.current = 'body';
-              voice.toggle('body');
-            }}>
+            <button className={`tbtn ${voice.recordingTarget === 'body' ? 'recording' : ''}`}
+                    onClick={() => { targetRef.current = 'body'; voice.toggle('body'); }}>
               {getVoiceBtnContent('body')}
             </button>
           </div>
 
           <div className="toolbar-step">
-            <span
-                className={`step-label ${ai.result && ai.result!.corrected !== 'nothing' ? 'done' : ''}`}>step 2</span>
-            <button className={`tbtn ${ai.loading ? 'ai-active' : ''}`} onClick={() => ai.fix(body)}
-                    disabled={ai.loading}>
-              {ai.loading ? <><span className="spin"/> fixing</> : <><span>✦</span> AI fix</>}
+            <span className={`step-label ${ai.result && ai.result.corrected !== 'nothing' ? 'done' : ''}`}>step 2</span>
+            <button className={`tbtn ${ai.loading ? 'ai-active' : ''}`}
+                    onClick={() => ai.fix(body)} disabled={ai.loading}>
+              {ai.loading ? <><span className="spin" /> fixing</> : <><span>✦</span> AI fix</>}
             </button>
           </div>
 
-
           <div className="toolbar-step">
             <span className={`step-label ${reBody ? 'done' : ''}`}>step 3</span>
-            <button className={`tbtn ${voice.recordingTarget === 'reBody' ? 'recording' : ''}`} onClick={() => {
-              targetRef.current = 'reBody';
-              voice.toggle('reBody');
-            }}>
+            <button className={`tbtn ${voice.recordingTarget === 'reBody' ? 'recording' : ''}`}
+                    onClick={() => { targetRef.current = 'reBody'; voice.toggle('reBody'); }}>
               {getVoiceBtnContent('reBody')}
             </button>
           </div>
         </div>
 
         <div className="textarea-wrapper">
-          <textarea ref={bodyRef} className="body-textarea"
-                    placeholder="Start writing... (English, voice or type)" value={body}
-                    onChange={e => setBody(e.target.value)}/>
-          {ai.punctuatingTarget === 'body' &&
+        <textarea ref={bodyRef} className="body-textarea"
+                  placeholder="Start writing... (English, voice or type)"
+                  value={body} onChange={e => setBody(e.target.value)} />
+          {ai.punctuatingTarget === 'body' && (
               <div className="punctuating-overlay">
-                <span className="spin"/> punctuating...
+                <span className="spin" /> punctuating...
               </div>
-          }
+          )}
         </div>
 
         {ai.error && <div className="ai-error">AI error: {ai.error}</div>}
@@ -164,33 +144,33 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
             />
         )}
 
-        {ai.result && ai.result!.corrected === 'nothing' && (
-            <div className={"ai-fix-nothing"}>Nothing to fix. Write your log.</div>
+        {ai.result && ai.result.corrected === 'nothing' && (
+            <div className="ai-fix-nothing">Nothing to fix. Write your log.</div>
         )}
 
-
         <div className="textarea-wrapper">
-          <textarea ref={reBodyRef} className="body-textarea"
-                    placeholder="Re-writing... (English, voice or type)" value={reBody}
-                    onChange={e => setReBody(e.target.value)}/>
-          {ai.punctuatingTarget === 'reBody' &&
+        <textarea ref={reBodyRef} className="body-textarea"
+                  placeholder="Re-writing... (English, voice or type)"
+                  value={reBody} onChange={e => setReBody(e.target.value)} />
+          {ai.punctuatingTarget === 'reBody' && (
               <div className="punctuating-overlay">
-                <span className="spin"/> punctuating...
+                <span className="spin" /> punctuating...
               </div>
-          }
+          )}
         </div>
 
-          <div className="save-bar">
-            <button className="btn-save" onClick={handleSave} disabled={saving}>
-              {saving ? <span className="spin"/> : 'save to drive'}
-            </button>
-            <span className={`status ${
-                !saveMsg ? '' :
-                    saveMsg.includes('failed') ? 'err' : saveMsg.includes('Saved') ? 'ok' : 'loading'
-            }`}>
+        <div className="save-bar">
+          <button className="btn-save" onClick={handleSave} disabled={saving}>
+            {saving ? <span className="spin" /> : 'save to drive'}
+          </button>
+          <span className={`status ${
+              !saveMsg ? '' :
+                  saveMsg.includes('failed') ? 'err' :
+                      saveMsg.includes('Saved') ? 'ok' : 'loading'
+          }`}>
           {saveMsg}
         </span>
-          </div>
+        </div>
       </main>
-);
+  );
 }
