@@ -1,0 +1,37 @@
+.setup-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+.setup-card { width: 100%; max-width: 500px; }
+
+.setup-logo {
+  font-family: var(--serif);
+  font-size: 3rem;
+  font-style: italic;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.setup-sub {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 3rem;
+}
+
+.setup-group { margin-bottom: 2.25rem; }
+
+.setup-group-title {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}

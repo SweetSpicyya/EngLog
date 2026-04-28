@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f0e8;
+  --surface: #ede8de;
+  --surface2: #e6e0d4;
+  --border: rgba(60,50,30,0.1);
+  --border-mid: rgba(60,50,30,0.2);
+  --text: #2c2416;
+  --muted: rgba(30, 24, 15, 0.7);
+  --accent: #2a6e3f;
+  --accent-dim: rgba(42,110,63,0.08);
+  --accent-dim2: rgba(138, 83, 27, 0.08);
+  --red: #c0392b;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Instrument Serif', serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 18px;
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
