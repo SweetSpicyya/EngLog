@@ -22,6 +22,7 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
   const [recordingTarget, setRecordingTarget] = useState<'body' | 'reBody' | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const recordingTargetRef = useRef<'body' | 'reBody' | null>(null);
+  const isRecordingRef = useRef(false);
   const rawFinalRef = useRef('');
   const committedRef = useRef('');
   const baseSnapshotRef = useRef('');
@@ -58,16 +59,37 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
       onTranscript(baseSnapshotRef.current + committedRef.current + interim);
     };
 
-    rec.onerror = () => setIsRecording(false);
-    rec.onend   = () => setIsRecording(false);
+    rec.onerror = () => {
+      setIsRecording(false);
+      isRecordingRef.current = false;
+    };
+
+    rec.onend = () => {
+      // 수동 stop이 아니면 자동 재시작 (모바일 대응)
+      if (isRecordingRef.current && recognitionRef.current === rec) {
+        baseSnapshotRef.current = getBase();
+        committedRef.current = '';
+        try {
+          rec.start();
+        } catch {
+          setIsRecording(false);
+          isRecordingRef.current = false;
+        }
+      } else {
+        setIsRecording(false);
+        isRecordingRef.current = false;
+      }
+    };
+
     rec.start();
     recognitionRef.current = rec;
+    isRecordingRef.current = true;
     setIsRecording(true);
     return true;
   }, [getBase, onTranscript]);
 
-
   const stop = useCallback(() => {
+    isRecordingRef.current = false;
     recognitionRef.current?.stop();
     const target = recordingTargetRef.current ?? 'body';
     recordingTargetRef.current = null;
@@ -77,7 +99,7 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
   }, [onStop]);
 
   const toggle = useCallback((target: 'body' | 'reBody' | null) => {
-    isRecording ? stop() : start(target);
+    return isRecording ? stop() : start(target);
   }, [isRecording, start, stop]);
 
   return { isRecording, recordingTarget, toggle };
