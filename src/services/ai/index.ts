@@ -1,8 +1,8 @@
 import type { AIProvider } from '../../types';
-import { callClaude } from './claude';
-import { callOpenAI } from './openai';
-import { callGemini } from './gemini';
-import { callGrok } from './grok';
+import { callClaude, checkClaude } from './claude';
+import { callOpenAI, checkOpenAI } from './openai';
+import { callGemini, checkGemini } from './gemini';
+import { callGrok, checkGrok } from './grok';
 
 export const FIX_SYSTEM =
     `You are an English writing coach. The user writes diary entries in Korean or broken English.
@@ -19,6 +19,21 @@ export const PUNCTUATE_SYSTEM =
       DO NOT change, rephrase, add, or remove any words.
       DO NOT correct grammar or improve the text.
       Return ONLY the punctuated text, nothing else.`;
+
+export async function checkAI(provider: AIProvider, apiKey: string): Promise<boolean> {
+  switch (provider) {
+    case 'claude':
+      return checkClaude(apiKey);
+    case 'openai':
+      return checkOpenAI(apiKey);
+    case 'gemini':
+      return checkGemini(apiKey);
+    case 'grok':
+      return checkGrok(apiKey);
+    default:
+      throw new Error('Unknown provider: ' + provider);
+  }
+}
 
 export async function callAI(provider: AIProvider, apiKey: string, system: string, user: string): Promise<string> {
   switch (provider) {

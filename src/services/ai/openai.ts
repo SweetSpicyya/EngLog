@@ -1,3 +1,13 @@
+export async function checkOpenAI(apiKey: string) {
+  const res = await fetch('https://api.openai.com/v1/models', {
+    headers: { Authorization: 'Bearer ' + apiKey }
+  });
+  if (!res.ok) {
+    return false;
+  }
+  return true;
+}
+
 export async function callOpenAI(apiKey: string, system: string, user: string): Promise<string> {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',

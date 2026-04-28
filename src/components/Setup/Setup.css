@@ -18,7 +18,7 @@
 }
 
 .setup-sub {
-  font-size: 11px;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   color: var(--muted);
   margin-bottom: 3rem;
@@ -27,11 +27,21 @@
 .setup-group { margin-bottom: 2.25rem; }
 
 .setup-group-title {
-  font-size: 10px;
+  font-size: 0.5rem;
   letter-spacing: 0.14em;
   color: var(--muted);
   text-transform: uppercase;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border);
+}
+
+.validation-error {
+  font-size: 0.5rem;
+  color: var(--red);
+  padding: 8px 12px;
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: 5px;
+  background: rgba(192,57,43,0.05);
+  margin-bottom: 1rem;
 }

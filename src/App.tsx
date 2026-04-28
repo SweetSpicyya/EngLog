@@ -19,6 +19,7 @@ function loadConfig(): Config | null {
 }
 
 export default function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [cfg, setCfg] = useState<Config | null>(loadConfig);
   const [currentDate, setCurrentDate] = useState(todayKey);
   const [showSettings, setShowSettings] = useState(false);
@@ -63,14 +64,21 @@ export default function App() {
         providerLabel={PROVIDERS[cfg.provider].label}
         onNewEntry={() => setCurrentDate(todayKey())}
         onSettings={openSettings}
+        onMenuToggle={() => setSidebarOpen(prev => !prev)}
       />
-      <div className="layout">
+
+
+      {sidebarOpen && (
+          <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <div className={`layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <Sidebar
           entries={drive.entries}
           currentDate={currentDate}
           cfg={cfg}
           onNewEntry={() => setCurrentDate(todayKey())}
-          onSelectEntry={setCurrentDate}
+          onSelectEntry={(key) => { setCurrentDate(key); setSidebarOpen(false); }}
           onSettings={openSettings}
         />
         <Editor
@@ -84,6 +92,7 @@ export default function App() {
           onSave={handleSave}
         />
       </div>
+
 
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>

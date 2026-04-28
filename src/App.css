@@ -11,7 +11,7 @@
 
 .field label {
   display: block;
-  font-size: 11px;
+  font-size: 0.7rem;
   color: var(--muted);
   margin-bottom: 0.35rem;
   letter-spacing: 0.03em;
@@ -25,7 +25,7 @@
   padding: 10px 12px;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: 0.8rem;
   outline: none;
   transition: border-color 0.2s;
   appearance: none;
@@ -44,7 +44,7 @@
 .field input::placeholder { color: rgba(44,36,22,0.18); }
 
 .field-hint {
-  font-size: 11px;
+  font-size: 0.5rem;
   color: var(--muted);
   margin-top: 0.35rem;
   line-height: 1.5;
@@ -61,7 +61,7 @@
   border-radius: 6px;
   padding: 12px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 0.7rem;
   font-weight: 500;
   cursor: pointer;
   letter-spacing: 0.04em;
@@ -78,7 +78,7 @@
   padding: 8px 14px;
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 0.55rem;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -109,7 +109,7 @@
 }
 
 .modal-title {
-  font-size: 13px;
+  font-size: 0.7rem;
   color: var(--text);
   margin-bottom: 1.5rem;
   letter-spacing: 0.04em;
@@ -135,7 +135,7 @@
   .modal-actions .btn-ghost {
     width: 100%;
     padding: 15px;
-    font-size: 16px;
+    font-size: 0.7rem;
     min-height: 52px;
     text-align: center;
   }

@@ -13,7 +13,7 @@
 }
 
 .editor-date-label {
-  font-size: 14px;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   color: var(--muted);
   text-transform: uppercase;
@@ -24,7 +24,7 @@
 .date-change-btn{
   width: 28px;
   height: 28px;
-  font-size: 16px;
+  font-size: 0.7rem;
   margin-bottom: 0.4rem;
   margin-right: 8px;
   padding: 3px 4px;
@@ -61,10 +61,10 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 5px;
-  padding: 6px 12px;
+  padding: 6px 10px;
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 0.7rem;
   cursor: pointer;
   letter-spacing: 0.04em;
   transition: all 0.15s;
@@ -108,7 +108,7 @@
 }
 
 .step-label {
-  font-size: 10px;
+  font-size: 0.5rem;
   color: var(--red);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -137,7 +137,7 @@
   outline: none;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 17px;
+  font-size: 0.75rem;
   line-height: 1.85;
   resize: none;
   letter-spacing: 0.01em;
@@ -159,14 +159,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: 0.7rem;
   color: var(--muted);
   letter-spacing: 0.05em;
   border-radius: 4px;
 }
 
 .ai-error {
-  margin-top: 1rem;
+  margin-top: 0.6rem;
   font-size: 12px;
   color: var(--red);
   padding: 8px 12px;
@@ -177,7 +177,7 @@
 
 .ai-fix-nothing{
   margin: 1rem 0;
-  font-size: 14px;
+  font-size: 0.7rem;
   color: var(--red);
   padding: 8px 12px;
   border: 1px solid rgba(192,57,43,0.2);
@@ -200,7 +200,7 @@
   padding: 8px 18px;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 0.7rem;
   cursor: pointer;
   letter-spacing: 0.04em;
   transition: all 0.2s;
@@ -214,7 +214,7 @@
 .btn-save:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .status {
-  font-size: 14px;
+  font-size: 0.7rem;
   color: var(--muted);
   letter-spacing: 0.04em;
   padding: 8px 12px;
@@ -250,8 +250,8 @@
 /* mobile */
 @media (max-width: 768px) {
   .editor { padding: 1.25rem 1.25rem 6rem; max-width: 100%; }
-  .editor-date-label { font-size: 13px; }
-  .title-input { font-size: 1.9rem; margin-bottom: 1.25rem; }
+  .editor-date-label { font-size: 0.7rem; }
+  .title-input { font-size: 1.8rem; margin-bottom: 1.25rem; }
 
   .toolbar {
     display: flex;
@@ -265,12 +265,12 @@
     flex: 1;
     justify-content: center;
     padding: 14px 10px;
-    font-size: 15px;
+    font-size: 0.65rem;
     border-radius: 10px;
     min-height: 52px;
   }
 
-  .body-textarea { font-size: 18px; min-height: 220px; line-height: 1.9; }
+  .body-textarea { font-size: 0.75rem; min-height: 220px; line-height: 1.9; }
 
   .save-bar {
     position: fixed;
@@ -284,10 +284,10 @@
   .btn-save {
     flex: 1;
     padding: 15px;
-    font-size: 16px;
+    font-size: 0.8rem;
     border-radius: 10px;
     min-height: 54px;
   }
 
-  .status { font-size: 14px; }
+  .status { font-size: 0.55rem; }
 }

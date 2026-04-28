@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Config, AIProvider } from '../../types';
 import { PROVIDERS } from '../../types';
 import './Setup.css';
+import {checkAI} from "../../services/ai";
 
 interface SetupProps {
   onComplete: (cfg: Config) => void;
@@ -18,15 +19,42 @@ export function Setup({ onComplete }: SetupProps) {
   const [provider, setProvider] = useState<AIProvider | ''>('');
   const [apiKey, setApiKey] = useState('');
   const [clientId, setClientId] = useState('');
+  const [validating, setValidating] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!provider) return alert('Select an AI provider');
     if (!apiKey.trim()) return alert('Enter your API key');
     if (!clientId.trim()) return alert('Enter your Google OAuth Client ID');
+
+    setValidating(true);
+    setValidationError('');
+
+    const error = await validateKeys(provider, apiKey, clientId);
+
+    if (error) {
+      setValidationError(error);
+      setValidating(false);
+      return;
+    }
+
     localStorage.setItem('englog_provider', provider);
     localStorage.setItem('englog_key_' + provider, apiKey);
     localStorage.setItem('englog_client_id', clientId);
     onComplete({ provider, apiKey, clientId });
+    setValidating(false);
+  }
+
+  async function validateKeys(provider: AIProvider, apiKey: string, clientId: string): Promise<string | null> {
+    const isValidAI = await checkAI(provider, apiKey);
+    if(!isValidAI){
+      return 'API key validation failed. Check your network or key.';
+    }
+    if (!clientId.endsWith('.apps.googleusercontent.com')) {
+      return 'Google Client ID format invalid.';
+    }
+
+    return null;
   }
 
   const hint = provider ? PROVIDER_HINTS[provider] : null;
@@ -70,8 +98,15 @@ export function Setup({ onComplete }: SetupProps) {
           </div>
         </div>
 
-        <button className="btn-primary" onClick={handleSubmit}>start writing →</button>
+        {validationError && (
+            <div className="validation-error">{validationError}</div>
+        )}
+
+        <button className="btn-primary" onClick={handleSubmit} disabled={validating}>
+          {validating ? <><span className="spin" /> validating...</> : 'start writing →'}
+        </button>
       </div>
+
     </div>
   );
 }

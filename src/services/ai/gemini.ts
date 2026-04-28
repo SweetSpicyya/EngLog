@@ -1,3 +1,13 @@
+export async function checkGemini(apiKey: string) {
+    const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+    );
+    if (!res.ok) {
+        return false;
+    }
+    return true;
+}
+
 export async function callGemini(apiKey: string, system: string, user: string): Promise<string> {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
