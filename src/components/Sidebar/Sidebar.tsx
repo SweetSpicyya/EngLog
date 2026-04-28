@@ -22,7 +22,7 @@ export function Sidebar({ entries, currentDate, cfg, onNewEntry, onSelectEntry, 
         {sorted.map(key => (
           <div key={key} className={`entry-row ${key === currentDate ? 'active' : ''}`} onClick={() => onSelectEntry(key)}>
             <div className="entry-row-date">{key}</div>
-            <div className="entry-row-preview">{entries[key].title || entries[key].body?.slice(0, 28) || '—'}</div>
+            <div className="entry-row-preview">{entries[key].title || entries[key].originalBody?.slice(0, 28) || '—'}</div>
           </div>
         ))}
       </div>
