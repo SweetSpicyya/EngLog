@@ -24,17 +24,30 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const recordingTargetRef = useRef<'body' | 'reBody' | null>(null);
   const isRecordingRef = useRef(false);
-  const rawFinalRef = useRef('');
-  const committedRef = useRef('');
+
+  // 녹음 시작 시점의 원본 텍스트 — onStop의 base로 사용 (절대 변경 안 됨)
+  const startSnapshotRef = useRef('');
+  // 세션 재시작 시 이전 세션 committed 텍스트를 누적하는 display용 base
   const baseSnapshotRef = useRef('');
+  // 현재 세션의 simple-punc 결과 (매 onresult마다 index 0부터 rebuild)
+  const committedRef = useRef('');
+  // 완료된 세션들의 raw 텍스트 누적
+  const rawAccumulatedRef = useRef('');
+  // 현재 세션의 raw 텍스트 (매 onresult마다 rebuild)
+  const sessionRawRef = useRef('');
+
   const startSessionRef = useRef<() => void>(() => {});
 
   const start = useCallback((target: 'body' | 'reBody' | null) => {
     setRecordingTarget(target);
     recordingTargetRef.current = target;
-    rawFinalRef.current = '';
+
+    const base = getBase();
+    startSnapshotRef.current = base;
+    baseSnapshotRef.current = base;
     committedRef.current = '';
-    baseSnapshotRef.current = getBase();
+    rawAccumulatedRef.current = '';
+    sessionRawRef.current = '';
 
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return false;
@@ -46,16 +59,23 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
       rec.lang = 'en-US';
 
       rec.onresult = (e: SpeechRecognitionEvent) => {
+        // 모바일에서 같은 index가 점진적으로 업데이트되므로
+        // index 0부터 전체 rebuild — append 방식은 중복 발생
+        let committed = '';
+        let sessionRaw = '';
         let interim = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
+
+        for (let i = 0; i < e.results.length; i++) {
           if (e.results[i].isFinal) {
-            const raw = e.results[i][0].transcript;
-            rawFinalRef.current += raw + ' ';
-            committedRef.current += formatSentence(raw);
+            committed += formatSentence(e.results[i][0].transcript);
+            sessionRaw += e.results[i][0].transcript + ' ';
           } else {
-            interim += e.results[i][0].transcript;
+            interim = e.results[i][0].transcript; // 마지막 interim만 사용
           }
         }
+
+        committedRef.current = committed;
+        sessionRawRef.current = sessionRaw;
         onTranscript(baseSnapshotRef.current + committedRef.current + interim);
       };
 
@@ -66,10 +86,12 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
 
       rec.onend = () => {
         if (isRecordingRef.current) {
-          // 이전 세션에서 확정된 텍스트를 base로 이동
+          // 현재 세션 raw를 누적하고 display base 업데이트
+          rawAccumulatedRef.current += sessionRawRef.current;
+          sessionRawRef.current = '';
           baseSnapshotRef.current = baseSnapshotRef.current + committedRef.current;
           committedRef.current = '';
-          // 새 인스턴스로 재시작 (기존 인스턴스 재사용 시 모바일에서 결과 중복 발생)
+          // 새 인스턴스로 재시작
           startSessionRef.current();
         } else {
           setIsRecording(false);
@@ -100,7 +122,11 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
     recordingTargetRef.current = null;
     setRecordingTarget(null);
     setIsRecording(false);
-    if (onStop) onStop(rawFinalRef.current.trim(), target, baseSnapshotRef.current);
+
+    // 완료된 세션 + 현재 세션 raw 합산
+    const allRaw = (rawAccumulatedRef.current + sessionRawRef.current).trim();
+    // base는 녹음 시작 시점의 원본 텍스트만 (중복 방지)
+    if (onStop) onStop(allRaw, target, startSnapshotRef.current);
   }, [onStop]);
 
   const toggle = useCallback((target: 'body' | 'reBody' | null) => {
