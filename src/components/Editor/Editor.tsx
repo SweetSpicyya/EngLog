@@ -5,6 +5,7 @@ import { useAI } from '../../hooks/useAI';
 import type { Config } from '../../types';
 import { PROVIDERS } from '../../types';
 import { formatDate, yesterdayKey } from '../../utils/date';
+import { normalizeSpacing } from '../../utils/text';
 import type { CorrectionResult } from '../../types';
 import './Editor.css';
 
@@ -13,7 +14,7 @@ interface EditorProps {
   currentDate: string;
   initialTitle: string;
   initialOriginalBody: string;
-  initialFixedBody: CorrectionResult;
+  initialFixedBody: CorrectionResult | null;
   initialAdvancedBody: string;
   onSave: (title: string, body: string, correction: CorrectionResult, reBody: string) => Promise<void>;
 }
@@ -35,12 +36,6 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
     if (ai.result) setCorrection(ai.result);
   }, [ai.result]);
 
-  const formatted = (fullText: string) => {
-    return fullText
-        .replace(/([.!?,])(\S)/g, '$1 $2')
-        .replace(/([.!?,])\s{2,}/g, '$1 ');
-  };
-
   const voice = useVoice({
     onTranscript: (text) => {
       if (targetRef.current === 'body') setBody(text);
@@ -53,15 +48,14 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
     onStop: (finalText, target, base) => {
       ai.punctuate(finalText, target, (corrected) => {
         const result = base ? base.trimEnd() + ' ' + corrected : corrected;
-        if (target === 'body') setBody(formatted(result));
-        else setReBody(formatted(result));
+        if (target === 'body') setBody(normalizeSpacing(result));
+        else setReBody(normalizeSpacing(result));
       });
     }
   });
 
   async function handleSave() {
     if (!body.trim() || !reBody.trim() || !ai.result || !title) {
-      setSaving(false);
       setSaveMsg('Save failed! You can save after completing all steps or put the title.');
       return;
     }
@@ -108,7 +102,7 @@ export function Editor({ cfg, currentDate, initialTitle, initialOriginalBody, in
           </div>
 
           <div className="toolbar-step">
-            <span className={`step-label ${ai.result && ai.result.corrected !== 'nothing' ? 'done' : ''}`}>step 2</span>
+            <span className={`step-label ${correction || (ai.result && ai.result.corrected !== 'nothing') ? 'done' : ''}`}>step 2</span>
             <button className={`tbtn ${ai.loading ? 'ai-active' : ''}`}
                     onClick={() => ai.fix(body)} disabled={ai.loading}>
               {ai.loading ? <><span className="spin" /> fixing</> : <><span>✦</span> AI fix</>}

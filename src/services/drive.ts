@@ -1,10 +1,11 @@
 import type { DiaryEntry } from '../types';
 
 const FOLDER_NAME = 'EngLog';
-let folderId: string | null = null;
+const folderCache = new Map<string, string>();
 
 async function getOrCreateFolder(token: string): Promise<string> {
-  if (folderId) return folderId;
+  const cached = folderCache.get(token);
+  if (cached) return cached;
   const res = await fetch(
       `https://www.googleapis.com/drive/v3/files?q=name%3D'${FOLDER_NAME}'+and+mimeType%3D'application%2Fvnd.google-apps.folder'+and+trashed%3Dfalse`,
       { headers: { Authorization: 'Bearer ' + token } }
@@ -12,8 +13,9 @@ async function getOrCreateFolder(token: string): Promise<string> {
   const data = await res.json();
 
   if (data.files?.length) {
-    folderId = data.files[data.files.length - 1].id;
-    return folderId!;
+    const id = data.files[data.files.length - 1].id as string;
+    folderCache.set(token, id);
+    return id;
   }
 
   const cr = await fetch('https://www.googleapis.com/drive/v3/files', {
@@ -21,8 +23,9 @@ async function getOrCreateFolder(token: string): Promise<string> {
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' }),
   });
-  folderId = (await cr.json()).id;
-  return folderId!;
+  const id = (await cr.json()).id as string;
+  folderCache.set(token, id);
+  return id;
 }
 
 export async function saveEntry(token: string, dateKey: string, content: DiaryEntry, existingFileId?: string): Promise<string> {

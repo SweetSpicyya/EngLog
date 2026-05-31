@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback } from 'react';
+import { formatSentence } from '../utils/date';
 
 interface SpeechRecognitionInstance {
   continuous: boolean;
@@ -26,6 +27,7 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
   const rawFinalRef = useRef('');
   const committedRef = useRef('');
   const baseSnapshotRef = useRef('');
+  const startSessionRef = useRef<() => void>(() => {});
 
   const start = useCallback((target: 'body' | 'reBody' | null) => {
     setRecordingTarget(target);
@@ -37,51 +39,55 @@ export function useVoice({ onTranscript, getBase, onStop }: UseVoiceOptions) {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return false;
 
-    const rec: SpeechRecognitionInstance = new SR();
-    rec.continuous = true;
-    rec.interimResults = true;
-    rec.lang = 'en-US';
+    const startSession = () => {
+      const rec: SpeechRecognitionInstance = new SR();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = 'en-US';
 
-    rec.onresult = (e: SpeechRecognitionEvent) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          const raw = e.results[i][0].transcript;
-          rawFinalRef.current += raw + ' ';  // 전체 세션 누적
-
-          let str = raw.charAt(0).toUpperCase() + raw.slice(1);
-          str = str.endsWith('?') || str.endsWith('!') ? str : str + '. ';
-          committedRef.current += str;
-        } else {
-          interim += e.results[i][0].transcript;
+      rec.onresult = (e: SpeechRecognitionEvent) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            const raw = e.results[i][0].transcript;
+            rawFinalRef.current += raw + ' ';
+            committedRef.current += formatSentence(raw);
+          } else {
+            interim += e.results[i][0].transcript;
+          }
         }
-      }
-      onTranscript(baseSnapshotRef.current + committedRef.current + interim);
-    };
+        onTranscript(baseSnapshotRef.current + committedRef.current + interim);
+      };
 
-    rec.onerror = () => {
-      setIsRecording(false);
-      isRecordingRef.current = false;
-    };
+      rec.onerror = () => {
+        setIsRecording(false);
+        isRecordingRef.current = false;
+      };
 
-    rec.onend = () => {
-      if (isRecordingRef.current && recognitionRef.current === rec) {
-        baseSnapshotRef.current = baseSnapshotRef.current + committedRef.current;
-        committedRef.current = '';
-        try {
-          rec.start();
-        } catch {
+      rec.onend = () => {
+        if (isRecordingRef.current) {
+          // 이전 세션에서 확정된 텍스트를 base로 이동
+          baseSnapshotRef.current = baseSnapshotRef.current + committedRef.current;
+          committedRef.current = '';
+          // 새 인스턴스로 재시작 (기존 인스턴스 재사용 시 모바일에서 결과 중복 발생)
+          startSessionRef.current();
+        } else {
           setIsRecording(false);
           isRecordingRef.current = false;
         }
-      } else {
+      };
+
+      recognitionRef.current = rec;
+      try {
+        rec.start();
+      } catch {
         setIsRecording(false);
         isRecordingRef.current = false;
       }
     };
 
-    rec.start();
-    recognitionRef.current = rec;
+    startSessionRef.current = startSession;
+    startSession();
     isRecordingRef.current = true;
     setIsRecording(true);
     return true;

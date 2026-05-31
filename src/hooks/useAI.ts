@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { callAI, FIX_SYSTEM, PUNCTUATE_SYSTEM } from '../services/ai';
+import { callWithRetry } from '../utils/retry';
 import type { AIProvider, CorrectionResult } from '../types';
 
 export function useAI(provider: AIProvider, apiKey: string) {
@@ -11,47 +12,36 @@ export function useAI(provider: AIProvider, apiKey: string) {
 
   const fix = useCallback(async (text: string) => {
     if (!text.trim()) {
-      setResult(
-          {corrected: 'nothing',
-                  notes: 'nothing'});
+      setResult({ corrected: 'nothing', notes: 'nothing' });
       return;
     }
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
-      const raw = await callAI(provider, apiKey, FIX_SYSTEM, text);
+      const raw = await callWithRetry(() => callAI(provider, apiKey, FIX_SYSTEM, text));
       const clean = raw.replace(/```json|```/g, '').trim();
       setResult(JSON.parse(clean));
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, [provider, apiKey]);
 
   const punctuate = useCallback(async (text: string, target: 'body' | 'reBody', onDone: (result: string) => void) => {
     if (!text.trim()) return;
     setPunctuating(true);
     setPunctuatingTarget(target);
-
-    const MAX_RETRY = 3;
-    let attempt = 0;
-
-    while (attempt < MAX_RETRY) {
-      try {
-        const res = await callAI(provider, apiKey, PUNCTUATE_SYSTEM, text);
-        onDone(res);
-        break;
-      } catch (e: unknown) {
-        attempt++;
-        if (attempt === MAX_RETRY) {
-          setError(e instanceof Error ? e.message : String(e));
-        } else {
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        }
-      }
+    try {
+      const res = await callWithRetry(() => callAI(provider, apiKey, PUNCTUATE_SYSTEM, text));
+      onDone(res);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setPunctuating(false);
+      setPunctuatingTarget(null);
     }
-    setPunctuating(false);
-    setPunctuatingTarget(null);
   }, [provider, apiKey]);
-
 
   return { loading, result, error, fix, punctuate, punctuating, punctuatingTarget };
 }

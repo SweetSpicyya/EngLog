@@ -53,14 +53,14 @@ export function useDrive(clientId: string) {
   const save = useCallback(async (dateKey: string, content: DiaryEntry): Promise<void> => {
     const t = await requireAuth();
     const existingFileId = entries[dateKey]?.fileId;
-    if (existingFileId) {
-      await fetch(`https://www.googleapis.com/drive/v3/files/${existingFileId}`, {
-        method: 'DELETE',
-        headers: { Authorization: 'Bearer ' + t }
-      });
-    }
+    // if (existingFileId) {
+    //   await fetch(`https://www.googleapis.com/drive/v3/files/${existingFileId}`, {
+    //     method: 'DELETE',
+    //     headers: { Authorization: 'Bearer ' + t }
+    //   });
+    // }
 
-    const fileId = await saveEntry(t, dateKey, content, undefined);
+    const fileId = await saveEntry(t, dateKey, content, existingFileId ?? undefined);
     setEntries(prev => ({ ...prev, [dateKey]: { ...content, fileId } }));
   }, [requireAuth, entries]);
 
